@@ -1,0 +1,139 @@
+<div>
+  <div class="flex flex-col justify-between gap-4 sm:flex-row">
+    <input
+      hlmInput
+      class="w-full md:w-80"
+      placeholder="Filter Final Name..."
+      [ngModel]="_emailFilter()"
+      (ngModelChange)="_rawFilterInput.set($event)"
+    />
+
+    <button hlmBtn variant="outline" align="end" [brnMenuTriggerFor]="menu">
+      Columns
+      <hlm-icon name="radixChevronDown" class="ml-2" size="sm" />
+    </button>
+    <ng-template #menu>
+      <hlm-menu class="w-32">
+        @for (columnName of _brnColumnManager.allColumns; track columnName) {
+          <button
+            hlmMenuItemCheckbox
+            [disabled]="_brnColumnManager.isColumnDisabled(columnName)"
+            [checked]="_brnColumnManager.isColumnVisible(columnName)"
+            (triggered)="_brnColumnManager.toggleVisibility(columnName)"
+          >
+            <hlm-menu-item-check />
+            <span>{{ columnName | titlecase }}</span>
+          </button>
+        }
+      </hlm-menu>
+    </ng-template>
+  </div>
+
+  <brn-table
+    hlm
+    stickyHeader
+    class="border-border mt-4 block h-[335px] overflow-auto rounded-md border w-full"
+    [dataSource]="_filteredSortedPaginatedPayments()"
+    [displayedColumns]="_allDisplayedColumns()"
+    [trackBy]="_trackBy"
+  >
+    <brn-column-def name="select">
+      <hlm-th class="w-12" *brnHeaderDef>
+        <brn-checkbox hlm [checked]="_checkboxState()" (changed)="handleHeaderCheckboxChange()">
+          <hlm-checkbox-checkicon />
+        </brn-checkbox>
+      </hlm-th>
+      <hlm-td class="w-12" *brnCellDef="let element">
+        <brn-checkbox hlm [checked]="_isPaymentSelected(element)" (changed)="togglePayment(element)">
+          <hlm-checkbox-checkicon />
+        </brn-checkbox>
+      </hlm-td>
+    </brn-column-def>
+    <brn-column-def name="id">
+      <hlm-th class="w-20 justify-end" *brnHeaderDef>ID</hlm-th>
+      <hlm-td class="w-20 justify-end font-medium tabular-nums" *brnCellDef="let element">
+        {{ element.id | number}}
+      </hlm-td>
+    </brn-column-def>
+    <brn-column-def name="firstName">
+      <hlm-th truncate class="w-40 sm:w-60 text-center" *brnHeaderDef>First Name</hlm-th>
+      <hlm-td truncate class="w-40 sm:w-60 text-center" *brnCellDef="let element">
+        {{ element.firstName | titlecase }}
+      </hlm-td>
+    </brn-column-def>
+    <brn-column-def name="lastName">
+      <hlm-th truncate class="w-32 sm:w-60 text-center" *brnHeaderDef>Last Name</hlm-th>
+      <hlm-td truncate class="w-32 sm:w-60 text-center" *brnCellDef="let element">
+        {{ element.lastName | titlecase }}
+      </hlm-td>
+    </brn-column-def>
+    <brn-column-def name="finalName">
+      <hlm-th class="w-52 lg:flex-1 text-center justify-center" *brnHeaderDef>
+        <button hlmBtn size="sm" variant="ghost" (click)="handleEmailSortChange()">
+          Final Name
+          <hlm-icon class="ml-3" size="sm" name="radixCaretSort" />
+        </button>
+      </hlm-th>
+      <hlm-td truncate class="w-52 lg:flex-1 text-center" *brnCellDef="let element">
+        {{ element.finalName }}
+      </hlm-td>
+    </brn-column-def>
+    <brn-column-def name="Age">
+      <hlm-th class="w-40 justify-end text-center" *brnHeaderDef>Age</hlm-th>
+      <hlm-td class="w-40 justify-end font-medium tabular-nums text-center" *brnCellDef="let element">
+        {{ element.Age | number}}
+      </hlm-td>
+    </brn-column-def>
+    <brn-column-def name="actions">
+      <hlm-th class="w-16" *brnHeaderDef></hlm-th>
+      <hlm-td class="w-16" *brnCellDef="let element">
+        <button hlmBtn variant="ghost" class="h-6 w-6 p-0.5" align="end" [brnMenuTriggerFor]="menu">
+          <hlm-icon class="h-4 w-4" name="radixDotsHorizontal" />
+        </button>
+
+        <ng-template #menu>
+          <hlm-menu>
+            <hlm-menu-label>Actions</hlm-menu-label>
+            <hlm-menu-separator />
+            <hlm-menu-group>
+              <a routerLink="/edit-table/{{element.id}}" >
+                <button hlmMenuItem >Edit</button>
+              </a>
+              <button hlmMenuItem (click)="this.deleteElementById(element.id)">Delete</button>
+            </hlm-menu-group>
+          </hlm-menu>
+        </ng-template>
+      </hlm-td>
+    </brn-column-def>
+    <div class="text-muted-foreground flex items-center justify-center p-20" brnNoDataRow>No data</div>
+  </brn-table>
+  <div
+    class="mt-4 flex flex-col justify-between sm:flex-row sm:items-center"
+    *brnPaginator="let ctx; totalElements: _totalElements(); pageSize: _pageSize(); onStateChange: _onStateChange"
+  >
+    <span class="${hlmMuted} text-sm">{{ _selected().length }} of {{ _totalElements() }} row(s) selected</span>
+    <div class="mt-2 flex sm:mt-0">
+      <select
+        [ngModel]="_pageSize()"
+        (ngModelChange)="_pageSize.set($event)"
+        hlmInput
+        size="sm"
+        class="mr-1 inline-flex pr-8"
+      >
+        @for (size of _availablePageSizes; track size) {
+          <option [value]="size">{{ size === 10000 ? 'All' : size }}</option>
+        }
+      </select>
+
+      <div class="flex space-x-1">
+        <button size="sm" variant="outline" hlmBtn [disabled]="!ctx.decrementable()" (click)="ctx.decrement()">
+          Previous
+        </button>
+        <button size="sm" variant="outline" hlmBtn [disabled]="!ctx.incrementable()" (click)="ctx.increment()">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>

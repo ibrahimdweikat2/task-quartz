@@ -1,0 +1,67 @@
+<max-width-wrapper >
+
+  <div class="relative flex flex-col items-center justify-center pt-20 pb-10 lg:space-x-0 w-full">
+    <div class="flex flex-col justify-center mx-auto w-full sm:w-[500px] space-y-6">
+      <div class="flex flex-col  items-center space-y-2">
+        <icons className="h-24 w-24"/>
+        <h1 class="font-medium text-xl">Add Element To The Table</h1>
+      </div>
+      <div class="grid gap-6">
+          <div class="grid gap-2">
+            <div class="grid gap-1.5">
+              <div class="grid grid-cols-1 md:grid-cols-2 w-full gap-1.5">
+                <input
+                  hlmInput
+                  type="text"
+                  class="flex-1"
+                  placeholder="First Name"
+                  [(ngModel)]="firstName"
+                  [value]="firstName"
+                >
+                <input
+                  hlmInput
+                  type="text"
+                  class="flex-1"
+                  placeholder="Last Name"
+                  [(ngModel)]="lastName"
+                  [value]="lastName"
+                >
+              </div>
+            </div>
+            <div class="grid gap-1.5">
+              <input
+                type="number"
+                hlmInput
+                placeholder="Age"
+                [(ngModel)]="Age"
+                [value]="Age"
+              >
+            </div>
+            <div class="grid">
+              <div *ngIf="this.id === undefined;then addItem else editItem"></div>
+              <ng-template #addItem>
+                <div *ngIf="this.loading === true ;then loadingSpinner else notLoading"></div>
+                <ng-template #loadingSpinner>
+                  <button hlmBtn variant="default" class="py-4">
+                    <spinner></spinner>
+                  </button>
+                </ng-template>
+                <ng-template #notLoading>
+                  <button (click)="$event.preventDefault(); submits()" hlmBtn variant="default" class="py-4">
+                    Add
+                  </button>
+                </ng-template>
+              </ng-template>
+              <ng-template #editItem>
+                <button (click)="$event.preventDefault(); submits()" hlmLabel="show" hlmBtn variant="default" class="py-4">
+                  Edit
+                </button>
+              </ng-template>
+
+            </div>
+          </div>
+      </div>
+    </div>
+  </div>
+
+</max-width-wrapper>

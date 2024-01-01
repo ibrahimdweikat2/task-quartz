@@ -1,0 +1,27 @@
+<max-width-wrapper className="overflow-x-scroll lg:overflow-auto mt-10 sm:mt-0 px-0 lg:px-5">
+  <div *ngIf="this.item.length === 0;then noItem else showItems"></div>
+  <ng-template #noItem>
+    <div class="flex flex-col items-center justify-center mx-auto pt-20 w-full gap-4">
+      <p>
+        No Item To Show...
+      </p>
+      <spinner></spinner>
+    </div>
+  </ng-template>
+
+  <ng-template #showItems>
+    <div *ngIf="this.loading === true;then noShow else ShowTable"></div>
+    <ng-template #ShowTable>
+      <table [data]="item"></table>
+    </ng-template>
+    <ng-template #noShow>
+      <div class="flex flex-col items-center justify-center mx-auto pt-20 w-full gap-4">
+        <spinner></spinner>
+      </div>
+    </ng-template>
+
+
+  </ng-template>
+
+
+</max-width-wrapper>
